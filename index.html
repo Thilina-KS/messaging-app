@@ -63,13 +63,37 @@
             background-color: #f8d7da;
             align-self: flex-start;
         }
+        #registration-form {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #registration-form input {
+            width: 70%;
+            max-width: 500px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <div id="chatbox"></div>
-    <div>
-        <input id="message-input" type="text" placeholder="Type your message..." />
-        <button onclick="sendMessage()">Send</button>
+    <div id="registration-form">
+        <input id="username" type="text" placeholder="Enter your username" required />
+        <input id="password" type="password" placeholder="Enter your password" required />
+        <button onclick="registerUser()">Register</button>
+    </div>
+
+    <div id="chat-container" style="display: none;">
+        <div id="chatbox"></div>
+        <div>
+            <input id="message-input" type="text" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
@@ -78,6 +102,34 @@
 
         const chatbox = document.getElementById('chatbox');
         const messageInput = document.getElementById('message-input');
+        const registrationForm = document.getElementById('registration-form');
+        const chatContainer = document.getElementById('chat-container');
+
+        function registerUser() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (username && password) {
+                // Send registration data to the backend
+                fetch('https://messaging-app-backend-production-a54e.up.railway.app/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Registration successful!');
+                            registrationForm.style.display = 'none';
+                            chatContainer.style.display = 'flex';
+                        } else {
+                            alert('Registration failed. Try again.');
+                        }
+                    })
+                    .catch(error => console.error('Error registering user:', error));
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
 
         // Load chat history on page load
         fetch('https://messaging-app-backend-production-a54e.up.railway.app/chat-history') // Replace with your backend chat history endpoint
